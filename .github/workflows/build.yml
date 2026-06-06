@@ -3,25 +3,34 @@ name: Flutter Android Build
 on:
   push:
     branches:
-      - main  # आपकी नई रि up Java Development Kit (Jon: 'zulu'
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java Development Kit (JDK)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
           java-version: '17'
 
-      # 3. फ्लटर सेटअप (Stable Version 3.19.0)
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-sion: '3.19.0'
+          flutter-version: '3.19.0'
           channel: 'stable'
 
-      # 4. डिपेंडेंसीज़ इंस्टॉल करना
       - name: Install Dependencies
         run: flutter pub get
 
-      # 5. रिलीज एपीके बिल्ड करना
       - name: Build APK
         run: flutter build apk --release
 
-      # 6. जनरेट हुई एपीके को डाउनलोड के लिए अपलोड करना
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:

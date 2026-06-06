@@ -25,38 +25,30 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
 
-      # 3. फ़्लटर सेट करना
+      # 3. फ़्लटर सेट करना (पुराने प्रोजेक्ट के लिए 3.19.0 बेस्ट है)
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.19.0'
           channel: 'stable'
 
-      # 4. ऑटोमैटिक सही फोल्डर ढूंढकर बिल्ड करना
-      - name: Auto-Detect Project & Build APK
+      # 4. पुराने एम्बेडिंग एरर को बाईपास करके बिल्ड करना
+      - name: Fix Path & Build APK
         run: |
-          echo "🔍 सही प्रोजेक्ट फोल्डर की तलाश शुरू..."
+          echo "🔍 प्रोजेक्ट फोल्डर चेक किया जा रहा है..."
           
-          # यहाँ स्क्रिप्ट चेक करेगी कि असली प्रोजेक्ट कहाँ है
-          if [ -f "free-pixel-converter/pubspec.yaml" ] && [ -d "free-pixel-converter/android/app" ]; then
-            echo "✅ प्रोजेक्ट 'free-pixel-converter' फोल्डर के अंदर मिल गया!"
-            cd free-pixel-converter
-          elif [ -f "pubspec.yaml" ] && [ -d "android/app" ]; then
-            echo "✅ प्रोजेक्ट बाहर मेन रूट (Main Root) पर मिल गया!"
-            # बाहर ही रहने देंगे, cd करने की जरूरत नहीं है
-          else
-            echo "❌ गड़बड़ है! किसी भी फोल्डर में सही एंड्रॉइड स्ट्रक्चर नहीं मिला।"
-            exit 1
-          fi
+          # अगर स्क्रिप्ट डबल फोल्डर वाली एरर दे रही है, तो हम एक नकली रास्ता (Symlink) बना देते हैं ताकि फ्लटर को फाइल मिल ही जाए
+          mkdir -p free-pixel-converter/free-pixel-converter
+          ln -s $(pwd)/android free-pixel-converter/free-pixel-converter/android
           
-          # सही जगह पहुँचने के बाद बिल्ड प्रोसेस
           echo "🚀 डिपेंडेंसीज गेट की जा रही हैं..."
           flutter pub get
           
           echo "📦 एपीके बिल्ड शुरू..."
-          flutter build apk --release
+          # पुराने ऐप्स के लिए कभी-कभी null-safety बंद करनी पड़ती है, हम इसे सेफ साइड लेकर चल रहे हैं
+          flutter build apk --release --no-sound-null-safety || flutter build apk --release
 
-      # 5. बनी हुई एपीके को ऑटोमैटिक ढूंढकर अपलोड करना
+      # 5. बनी हुई एपीके को अपलोड करना
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:

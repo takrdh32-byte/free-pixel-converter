@@ -3,29 +3,14 @@ name: Flutter Android Build
 on:
   push:
     branches:
-      - main  # आपकी नई रिपॉजिटरी का डिफ़ॉल्ट ब्रांच
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      # 1. कोड चेकआउट करना
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      # 2. जावा सेटअप (JDK 17)
-      - name: Set up Java Development Kit (JDK)
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'zulu'
+      - main  # आपकी नई रि up Java Development Kit (Jon: 'zulu'
           java-version: '17'
 
       # 3. फ्लटर सेटअप (Stable Version 3.19.0)
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.19.0'
+sion: '3.19.0'
           channel: 'stable'
 
       # 4. डिपेंडेंसीज़ इंस्टॉल करना

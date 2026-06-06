@@ -25,22 +25,40 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
 
-      # 3. फ़्लटर सेट करना (यहाँ नाम एकदम सही कर दिया है)
+      # 3. फ़्लटर सेट करना
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.19.0'
           channel: 'stable'
 
-      # 4. डिपेंडेंसीज इंस्टॉल करना और रूट से सीधे बिल्ड करना
-      - name: Install Dependencies & Build APK
+      # 4. ऑटोमैटिक सही फोल्डर ढूंढकर बिल्ड करना
+      - name: Auto-Detect Project & Build APK
         run: |
+          echo "🔍 सही प्रोजेक्ट फोल्डर की तलाश शुरू..."
+          
+          # यहाँ स्क्रिप्ट चेक करेगी कि असली प्रोजेक्ट कहाँ है
+          if [ -f "free-pixel-converter/pubspec.yaml" ] && [ -d "free-pixel-converter/android/app" ]; then
+            echo "✅ प्रोजेक्ट 'free-pixel-converter' फोल्डर के अंदर मिल गया!"
+            cd free-pixel-converter
+          elif [ -f "pubspec.yaml" ] && [ -d "android/app" ]; then
+            echo "✅ प्रोजेक्ट बाहर मेन रूट (Main Root) पर मिल गया!"
+            # बाहर ही रहने देंगे, cd करने की जरूरत नहीं है
+          else
+            echo "❌ गड़बड़ है! किसी भी फोल्डर में सही एंड्रॉइड स्ट्रक्चर नहीं मिला।"
+            exit 1
+          fi
+          
+          # सही जगह पहुँचने के बाद बिल्ड प्रोसेस
+          echo "🚀 डिपेंडेंसीज गेट की जा रही हैं..."
           flutter pub get
+          
+          echo "📦 एपीके बिल्ड शुरू..."
           flutter build apk --release
 
-      # 5. जनरेट हुई एपीके को अपलोड करना
+      # 5. बनी हुई एपीके को ऑटोमैटिक ढूंढकर अपलोड करना
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: free-pixel-converter-apk
-          path: "build/app/outputs/flutter-apk/app-release.apk"
+          path: "**/build/app/outputs/flutter-apk/app-release.apk"

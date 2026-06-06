@@ -1,0 +1,41 @@
+name: Android Kotlin Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. कोड चेकआउट करना
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 2. जावा एनवायरनमेंट सेट करना (कोटलिन के लिए JDK 17 एकदम बेस्ट है)
+      - name: Set up Java Development Kit (JDK)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      # 3. ग्रैडल (Gradle Wrapper) को रन करने की परमिशन देना
+      - name: Grant Execute Permission to Gradlew
+        run: chmod +x gradlew
+
+      # 4. कोटलिन प्रोजेक्ट की रिलीज एपीके बिल्ड करना
+      - name: Build APK with Gradle
+        run: ./gradlew assembleRelease
+
+      # 5. बनी हुई एपीके को गिटहब पर अपलोड करना
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: kotlin-app-release-apk
+          path: "app/build/outputs/apk/release/*-release-unsigned.apk"

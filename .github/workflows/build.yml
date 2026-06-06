@@ -25,17 +25,16 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
 
-      # 3. फ़्लटर सेट करना
+      # 3. फ़्लटर सेट करना (यहाँ नाम एकदम सही कर दिया है)
       - name: Set up Flutter
-        uses: actions/subosito/flutter-action@v2
+        uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.19.0'
           channel: 'stable'
 
-      # 4. डिपेंडेंसीज इंस्टॉल करना और रूट (बाहर) से सीधे बिल्ड करना
+      # 4. डिपेंडेंसीज इंस्टॉल करना और रूट से सीधे बिल्ड करना
       - name: Install Dependencies & Build APK
         run: |
-          # हम किसी फ़ोल्डर के अंदर नहीं जाएँगे, सीधा बाहर ही कमांड रन करेंगे
           flutter pub get
           flutter build apk --release
 

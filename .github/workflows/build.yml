@@ -28,21 +28,24 @@ jobs:
           flutter-version: '3.19.0'
           channel: 'stable'
 
-      # 4. डिपेंडेंसीज़ इंस्टॉल करना (डबल फ़ोल्डर के अंदर जाकर)
+      # 4. ऑटोमैटिक डिपेंडेंसीज़ इंस्टॉल (प्रोजेक्ट फ़ोल्डर खुद ढूंढेगा)
       - name: Install Dependencies
         run: |
-          cd free-pixel-converter
+          TARGET_DIR=$(find . -name "pubspec.yaml" -exec dirname {} \; | head -n 1)
+          echo "Found project root at: $TARGET_DIR"
+          cd "$TARGET_DIR"
           flutter pub get
 
-      # 5. रिलीज एपीके बिल्ड करना (डबल फ़ोल्डर के अंदर जाकर)
+      # 5. ऑटोमैटिक रिलीज एपीके बिल्ड (प्रोजेक्ट फ़ोल्डर खुद ढूंढेगा)
       - name: Build APK
         run: |
-          cd free-pixel-converter
+          TARGET_DIR=$(find . -name "pubspec.yaml" -exec dirname {} \; | head -n 1)
+          cd "$TARGET_DIR"
           flutter build apk --release
 
-      # 6. जनरेट हुई एपीके को अपलोड करना
+      # 6. जनरेट हुई एपीके को ऑटोमैटिकली अपलोड करना
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: free-pixel-converter-apk
-          path: free-pixel-converter/build/app/outputs/flutter-apk/app-release.apk
+          path: "**/build/app/outputs/flutter-apk/app-release.apk"

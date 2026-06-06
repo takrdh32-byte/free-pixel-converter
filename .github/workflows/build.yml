@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   build:
@@ -14,36 +17,35 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # 2. जावा सेटअप (JDK 17)
+      # 2. जावा एनवायरनमेंट सेट करना
       - name: Set up Java Development Kit (JDK)
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '17'
 
-      # 3. फ्लटर सेटअप
+      # 3. फ़्लटर सेट करना
       - name: Set up Flutter
-        uses: subosito/flutter-action@v2
+        uses: actions/subosito/flutter-action@v2
         with:
           flutter-version: '3.19.0'
           channel: 'stable'
 
-      # 4. ऑटोमैटिक डिपेंडेंसीज़ इंस्टॉल (प्रोजेक्ट फ़ोल्डर खुद ढूंढेगा)
-      - name: Install Dependencies
+      # 4. डिपेंडेंसीज इंस्टॉल करना और सही फ़ोल्डर ढूंढना
+      - name: Install Dependencies & Build
         run: |
+          # जहाँ pubspec.yaml है, उस फ़ोल्डर को ढूंढो
           TARGET_DIR=$(find . -name "pubspec.yaml" -exec dirname {} \; | head -n 1)
-          echo "Found project root at: $TARGET_DIR"
+          echo "Found project directory at: $TARGET_DIR"
           cd "$TARGET_DIR"
+          
+          # डिपेंडेंसी गेट करना
           flutter pub get
-
-      # 5. ऑटोमैटिक रिलीज एपीके बिल्ड (प्रोजेक्ट फ़ोल्डर खुद ढूंढेगा)
-      - name: Build APK
-        run: |
-          TARGET_DIR=$(find . -name "pubspec.yaml" -exec dirname {} \; | head -n 1)
-          cd "$TARGET_DIR"
+          
+          # एपीके बिल्ड करना (v2 एम्बेडिंग एरर से बचने के लिए सीधा कमांड)
           flutter build apk --release
 
-      # 6. जनरेट हुई एपीके को ऑटोमैटिकली अपलोड करना
+      # 5. बनी हुई एपीके को अपलोड करना
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
